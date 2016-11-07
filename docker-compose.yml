@@ -1,0 +1,54 @@
+version: '2'
+services:
+    #varnish:
+    #    image: million12/varnish
+    #    environment:
+    #       VARNISH_PORT: 8087
+    #       VARNISH_MEMORY: 1G
+    #    ports:
+    #       - "8087:8087"
+    #    volumes:
+    #       - "./docker/varnish/default.vcl:/etc/varnish/default.vcl:ro"
+
+    nginx:
+        image: nginx
+        container_name: nginx
+        restart: always
+        ports:
+            - "8080:8080"
+        volumes:
+            - ".:/home/docker:ro"
+            - "./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro"
+        links:
+            - php
+
+    php:
+        build: ./docker/php/
+        container_name: php
+        restart: always
+        volumes:
+            - ".:/home/docker:rw"
+            - "./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini:ro"
+        working_dir: "/home/docker"
+        links:
+            - mysql
+            - elasticsearch
+
+    mysql:
+        image: mysql
+        container_name: mysql
+        restart: always
+        volumes:
+            - "./var/mysql:/var/lib/mysql"
+        environment:
+          - MYSQL_ROOT_PASSWORD=test
+          - MYSQL_ALLOW_EMPTY_PASSWORD=true
+
+    #phpmyadmin:
+    #    image: phpmyadmin/phpmyadmin
+
+    elasticsearch:
+        image: elasticsearch
+
+    redis:
+        image: redis
